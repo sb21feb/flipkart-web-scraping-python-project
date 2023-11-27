@@ -7,20 +7,17 @@ import numpy as np
 # Function to extract Product Title
 def get_title(soup):
     try:
-        title = soup.find(class_="_4rR01T").get_text()
-
-        # Title as a string value
-        title_string = title.strip()
+        title = soup.find(class_="B_NuCI").get_text().strip()
 
     except AttributeError:
-        title_string = ""
+        title = ""
 
-    return title_string
+    return title
 
 # Function to extract Product Price
 def get_price(soup):
     try:
-        price = soup.find(class_="_30jeq3 _1_WHN1").get_text().strip()
+        price = soup.find(class_="_30jeq3 _16Jk6d").get_text().strip()
 
     except AttributeError:
         price = ""
@@ -39,7 +36,7 @@ def get_rating(soup):
     return rating
 
 
-# Function to extract Number of User Reviews
+# Function to extract Number of User Reviews and Ratings
 def get_review_and_ratings_count(soup):
     try:
         review_count = str(soup.find(class_="_2_R_DZ").text.strip()).replace('\xa0', ' ')
@@ -50,15 +47,15 @@ def get_review_and_ratings_count(soup):
     return review_count
 
 
-# Function to know about Delivery
-def get_delivery(soup):
+# Function to know about Warranty
+def get_warranty(soup):
     try:
-        delivery = soup.find(class_="_2Tpdn3").get_text().strip()
+        warranty = soup.find(class_="_352bdz").get_text().strip().replace('Know More','')
 
     except AttributeError:
-        delivery = " "
+        warranty = ""
 
-    return delivery
+    return warranty
 
 if __name__ == '__main__':
 
@@ -84,7 +81,7 @@ if __name__ == '__main__':
     for link in links:
         links_list.append(link.get('href'))
 
-    d = {"title": [], "price": [], "ratings": [], "rating_and_reviews_count": [], "delivery": []}
+    d = {"title": [], "price": [], "ratings": [], "rating_and_reviews_count": [], "warranty": []}
 
     # Loop for extracting product details from each link
     for link in links_list:
@@ -97,9 +94,9 @@ if __name__ == '__main__':
         d['price'].append(get_price(new_soup))
         d['ratings'].append(get_rating(new_soup))
         d['rating_and_reviews_count'].append(get_review_and_ratings_count(new_soup))
-        d['delivery'].append(get_delivery(new_soup))
+        d['warranty'].append(get_warranty(new_soup))
 
-    flipkart_df = pd.DataFrame.from_dict(d)
+    flipkart_df = pd.DataFrame(d,index=list(range(0,len(links_list))))
     flipkart_df['title'].replace('', np.nan, inplace=True)
     flipkart_df = flipkart_df.dropna(subset=['title'])
     flipkart_df.to_csv("flipkart_data.csv", header=True, index=False)
